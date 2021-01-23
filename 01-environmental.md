@@ -41,7 +41,22 @@ Go 语言环境安装只需要按官方文档即可，这里的步骤是我个�
 3. 安装社区版 `sudo dnf install docker-ce`
 4. 启动 docker `systemctl enable --now docker`
 5. 查看 docker 状态，`systemctl status docker` 看到 Active: active (running) 则说明启动成功
-6. 测试 docker 容器 
+6. (可选) 配置加速服务
+    ```shell
+    $ sudo tee /etc/docker/daemon.json <<-'EOF'
+    {
+      "registry-mirrors": [
+          "https://ksrmtc13.mirror.aliyuncs.com",
+          "https://docker.mirrors.ustc.edu.cn",
+          "http://f1361db2.m.daocloud.io",
+          "https://registry.docker-cn.com",
+          "https://mirror.baidubce.com"]
+    }
+    EOF
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart docker
+    ```
+7. 测试 docker 容器 
     - 使用 alpine 镜像测试 `sudo docker pull alpine`
     - 运行镜像 `sudo docker run -it --rm alpine /bin/sh`
     - 随便选几条命令测试 `/ # apk update`
@@ -71,7 +86,7 @@ Go 语言环境安装只需要按官方文档即可，这里的步骤是我个�
    ```
 2. 安装组件 `dnf install -y kubelet kubeadm kubectl`
 3. 启动时需要使用 `systemctl enable kubelet && systemctl start kubelet`
-4. 目前执行 3 可能 `sudo systemctl status kubectl` 显示 Unit kubectl.service could not be found. 不需要理会，因为你还没有集群。
+4. 执行 3 之后，`sudo systemctl status kubectl` 显示 Unit kubectl.service could not be found. 不需要理会，因为你还没有集群。
      
 ### kind
 
@@ -79,8 +94,8 @@ Go 语言环境安装只需要按官方文档即可，这里的步骤是我个�
 
 **注意** 必须将 GOPATH 添加到 PATH 。否则会遇到 `kind: command not found` ，这一步已经在安装 GO 时候第三步中，通过 `export PATH="$(go env GOPATH)/bin:$PATH"` 解决。
 
-由于并非全局安装 Go ，在 sudo 模式执行 kind 命令仍然会报找不到命令，可以通过：
+由于并非全局安装，sudo 模式执行 kind 命令也会报 `command not found` ，可以通过：
 
-- 执行 `sudo $(go env GOPATH)/bin/kind <anything>` 或者
-- 为 sudo 设置别名 `alias sudo='sudo env PATH=$PATH'` 解决。
+- 执行命令时使用 `sudo $(go env GOPATH)/bin/kind` 替换 `sudo kind` ，或者：
+- 为 sudo 设置别名 `alias sudo='sudo env PATH=$PATH'`（写入 `$HOME/.bashrc` ）
 
